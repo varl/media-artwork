@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class FanartTv(object):
 
   def __init__(self):
@@ -9,4 +10,4 @@ class FanartTv(object):
     self.url_proxy = 'http://private-anon-9363a01f2-fanarttv.apiary-proxy.com'
 
   def search(self, term):
-    
+    pass
