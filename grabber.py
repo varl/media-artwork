@@ -24,7 +24,8 @@ def reconstruct_title(t):
     print u'Reconstructed title: {}'.format(result)
     return result
 
-def movie_meta(dirname):
+def movie_meta(path, dirname):
+    """ Handles names in format '<Title> (<year>)' """
     pattern = re.compile(ur'(?P<title>^.*)\s\((?P<year>\d{4})\)', re.U)
     match = re.search(pattern, dirname)
     match.groups()
@@ -35,17 +36,34 @@ def movie_meta(dirname):
     movie = omdbapi.search(title=reconstruct_title(title), type='movie')
     print u'Found movie id: {}'.format(movie.get('imdbID'))
 
-    return dict(dirname=dirname, year=year, title=title, imdbid=movie.get('imdbID'))
+    return dict(path=path, dirname=dirname, year=year, title=title, imdbid=movie.get('imdbID'))
 
-def scan_music(target):
+def scan_music(path, target):
     pass
 
-def scan_movies(target):
-    meta = movie_meta(target)
-    fanart = fanarttv.movie_id(meta.get('imdbid'))
-    return 
+def scan_movie(path, target):
+    meta = movie_meta(path, target)
+    fanarttv.movie_art(meta)
+    return
 
-def scan_tv(target):
+def find_local_tv(target):
+    """
+    TV Shows:
+        Poster (poster.jpg)
+        Season Posters (seasonx.jpg)
+        FanArt (fanart.jpg)
+        Extra fanart: extrafanart/(<image ID from provider>.jpg)
+        Clearart (clearart.png)
+        Characterart (character.png)
+        Logo (logo.png)
+        Wide Banner Icons (banner.jpg)
+        Season Banners (seasonbannerx.jpg)
+        Thumb 16:9 (landscape.jpg)
+        Season Thumb 16:9 (seasonx-landscape.jpg | seasonall-landscape.jpg)
+    """
+    pass
+
+def scan_tv(path, target):
     pass
 
 def scan_media(target):
@@ -60,18 +78,17 @@ if __name__ == "__main__":
 
     cfg = Config()
     paths = cfg.paths
-    media = {}
 
     for category in cfg.categories:
-        media[category] = []
         dirs = scan_media(paths.get(category))
 
     if category == "music":
-        scanner = scan_music
+        populate = scan_music
     elif category == "tv":
-        scanner = scan_tv
+        populate = scan_tv
     else:
-        scanner = scan_movies
+        populate = scan_movie
 
     for d in dirs:
-        scanner(d)
+        populate(paths.get(category), d)
+
