@@ -22,23 +22,22 @@ mappings = {
     'landscape.jpg': 'moviethumb'
 }
 
-def download(data):
-    for local, remote in data.iteritems():
-        print u'Downloading {} to {}'.format(remote, local)
-        filename, headers = urllib.urlretrieve(remote, local)
-        print filename
-        print headers
-
-def movie_id(mid):
-    if mid is None:
-        return {}
-
+def get(ident, category=''):
+    result = {}
     data = dict(api_key=api_key)
 
     req = urllib.urlencode(data)
-    fullurl = url + u'/movies/' + mid + u'?' + req
-    resp = urllib2.urlopen(fullurl).read()
-    return json.loads(resp)
+    fullurl = url + u'/' + category + u'/' + ident + u'?' + req
+
+    try:
+        resp = urllib2.urlopen(fullurl)
+    except urllib2.URLError, e:
+        return result
+    else:
+        result = resp.read()
+
+    return json.loads(result)
+
 
 def movie_art(meta):
     """
@@ -61,7 +60,7 @@ def movie_art(meta):
 
     local = {}
 
-    fanart = movie_id(meta.get('imdbid'))
+    fanart = get(meta.get('imdbid'), category='movies')
 
     for art in artwork:
         path = os.path.join(meta.get('path'), meta.get('dirname'), art)
@@ -74,6 +73,30 @@ def movie_art(meta):
             for item in art_list:
                 local[path] = item.get('url')
 
+    return local
 
-    download(local)
-    return
+def tv_art(meta):
+    """
+    TV Shows:
+        Poster (poster.jpg)
+        Season Posters (seasonx.jpg)
+        FanArt (fanart.jpg)
+        Extra fanart: extrafanart/(<image ID from provider>.jpg)
+        Clearart (clearart.png)
+        Characterart (character.png)
+        Logo (logo.png)
+        Wide Banner Icons (banner.jpg)
+        Season Banners (seasonbannerx.jpg)
+        Thumb 16:9 (landscape.jpg)
+        Season Thumb 16:9 (seasonx-landscape.jpg | seasonall-landscape.jpg)
+    """
+    artwork = ['poster.jpg', 'season*.jpg', 'fanart.jpg', 'clearart.png',\
+            'character.png', 'logo.png', 'banner.jpg', 'seasonbanner*.jpg',\
+            'landscape.jpg', 'season*-landscape.jpg',\
+            'seasonall-landscape.jpg']
+
+    extras = ['extrafanart']
+
+    fanart = get(meta.get('tvdb_id'), category='tv')
+
+    return dict()
