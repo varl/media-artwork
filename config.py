@@ -1,7 +1,3 @@
-from fanarttv import FanartTv
-
-from socket import gethostname
-
 class Config(object):
 
   def __init__(self):
@@ -12,6 +8,3 @@ class Config(object):
         'tv': u'tmp/tv',
         'movies': u'tmp/movies'
     }
-
-  def services(self):
-    fanart = FanartTv()

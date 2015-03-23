@@ -6,6 +6,7 @@ import sys
 import re
 
 import omdbapi
+import fanarttv
 
 from config import Config
 
@@ -32,17 +33,17 @@ def movie_meta(dirname):
     year = match.group('year')
     
     movie = omdbapi.search(title=reconstruct_title(title), type='movie')
-    print movie.get('Plot')
-    print movie.get('tomatoMeter')
-    print movie.get('imdbID')
+    print u'Found movie id: {}'.format(movie.get('imdbID'))
 
-    return dict(dirname=dirname, year=year, title=title)
+    return dict(dirname=dirname, year=year, title=title, imdbid=movie.get('imdbID'))
 
 def scan_music(target):
     pass
 
 def scan_movies(target):
-    return movie_meta(target)
+    meta = movie_meta(target)
+    fanart = fanarttv.movie_id(meta.get('imdbid'))
+    return 
 
 def scan_tv(target):
     pass
@@ -73,4 +74,4 @@ if __name__ == "__main__":
         scanner = scan_movies
 
     for d in dirs:
-        media[category].append(scanner(d))
+        scanner(d)
