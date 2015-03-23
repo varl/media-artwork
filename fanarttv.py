@@ -12,7 +12,7 @@ url = u'http://webservice.fanart.tv/v3'
 # use the proxied url to live inspect reqs in the documentation
 url_proxy = u'http://private-anon-9363a01f2-fanarttv.apiary-proxy.com'
 
-mappings = {
+movie_mappings = {
     'poster.jpg': 'movieposter', 
     'fanart.jpg': 'moviebackground', 
     'clearart.png': 'hdmovieclearart', #['hdmovieclearart', 'movieart'],
@@ -20,6 +20,20 @@ mappings = {
     'disc.png': 'moviedisc',
     'banner.jpg': 'moviebanner',
     'landscape.jpg': 'moviethumb'
+}
+
+tv_mappings = {
+        'poster.jpg': 'tvposter', 
+        'season*.jpg': 'seasonposter',
+        'fanart.jpg': 'showbackground', 
+        'clearart.png': 'hdclearart', #['hdclearart', 'clearart']
+        'character.png': 'characterart',
+        'logo.png': 'hdtvlogo',  #['hdtvlogo','clearlogo']
+        'banner.jpg': 'tvbanner', 
+        'landscape.jpg': 'tvthumb',
+        'season*-landscape.jpg': 'seasonthumb',
+        'seasonall-landscape.jpg': 'tvthumb',
+        'seasonbanner*.jpg': 'seasonbanner'
 }
 
 def get(ident, category=''):
@@ -58,22 +72,21 @@ def movie_art(meta):
 
     extra = ['extrafanarts', 'extrathumbs']
 
-    local = {}
+    queue = {}
 
     fanart = get(meta.get('imdbid'), category='movies')
 
     for art in artwork:
         path = os.path.join(meta.get('path'), meta.get('dirname'), art)
-
-        rpath = mappings.get(art)
-
+        rpath = movie_mappings.get(art)
         art_list = fanart.get(rpath)
 
         if isinstance(art_list, collections.MutableSequence):
             for item in art_list:
-                local[path] = item.get('url')
+                queue[path] = item.get('url')
+                break
 
-    return local
+    return queue
 
 def tv_art(meta):
     """
@@ -97,6 +110,22 @@ def tv_art(meta):
 
     extras = ['extrafanart']
 
+    queue = {}
     fanart = get(meta.get('tvdb_id'), category='tv')
 
-    return dict()
+    for art in artwork:
+        path = os.path.join(meta.get('path'), meta.get('dirname'), art)
+        rpath = tv_mappings.get(art)
+
+        if art.startswith('season'):
+            print 'special ops'
+            art_list = []
+        else:
+            art_list = fanart.get(rpath)
+
+        if isinstance(art_list, collections.MutableSequence):
+            for item in art_list:
+                queue[path] = item.get('url')
+                break
+
+    return queue
