@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 import os
 import os.path
 import codecs
 import sys
 import re
 import urllib
+import unicodedata
 
 import omdbapi
 import fanarttv
@@ -27,6 +28,7 @@ def reconstruct_title(t):
     return result
 
 def movie_meta(path, dirname):
+    print 
     """ Handles names in format '<Title> (<year>)' """
     pattern = re.compile(ur'(?P<title>^.*)\s\((?P<year>\d{4})\)', re.U)
     match = re.search(pattern, dirname)
@@ -35,7 +37,14 @@ def movie_meta(path, dirname):
     title = match.group('title')
     year = match.group('year')
     
-    movie = omdbapi.search(title=reconstruct_title(title), type='movie')
+    new_title = reconstruct_title(title)
+    movie = omdbapi.search(title=new_title, type='movie')
+
+    if movie.get('Response') == u'False':
+      print 'Retrying without unicode chars ({})'.format(new_title.encode('ascii', 'ignore'))
+      movie = omdbapi.search(title=new_title.encode('ascii', 'ignore'),\
+          type='movie')
+      
     print u'Found movie id: {}'.format(movie.get('imdbID'))
 
     return dict(path=path, dirname=dirname, year=year, title=title, \
@@ -57,25 +66,24 @@ def tv_meta(path, dirname):
     print u'Got TVDB result: {}'.format(tvdb_series is not None)
 
     tvdb_imdbid = tvdb_series[0].find('IMDB_ID').text
-    tvdb_id = tvdb_series[0].find('id').text
+    tvdbid = tvdb_series[0].find('id').text
 
-    print u'Found series TVDB id: {}'.format(tvdb_id)
+    print u'Found series TVDB id: {}'.format(tvdbid)
 
     if tvdb_imdbid != omdb_imdbid:
         print u'The imdb ids do not match: Name{}, OMDB: {}, TVDB {}'\
                 .format(title, omdb_imdbid, tvdb_imdbid)
 
     return dict(path=path, dirname=dirname, title=dirname, \
-            imdb_id=omdb_imdbid, tvdb_id=tvdb_id)
+            imdbid=omdb_imdbid, tvdbid=tvdbid)
 
 def scan_music(path, target):
     pass
 
 def scan_movie(path, target):
-    pass
-    #meta = movie_meta(path, target)
-    #data = fanarttv.movie_art(meta)
-    #return download(data)
+    meta = movie_meta(path, target)
+    data = fanarttv.movie_art(meta)
+    return download(data)
 
 def scan_tv(path, target):
     meta = tv_meta(path, target)
@@ -88,7 +96,10 @@ def scan_media(target):
   return dirlist
 
 def download(data):
-    for local, remote in data.iteritems():
+    for local, remote in data:
+      if os.path.exists(local):
+        print u'Local file exists ({}), skipping...'.format(local)
+      else:
         print u'Downloading\t{}'.format(remote)
         filename, headers = urllib.urlretrieve(remote, local)
         print u'Downloaded\t{}'.format(filename)
