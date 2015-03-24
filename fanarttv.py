@@ -199,7 +199,6 @@ def music_art(meta):
         continue
 
       for art in album_artwork:
-        print u'\n'
         rpath = album_mappings.get(art)
 
         albums = albumart.get('albums')
@@ -207,7 +206,6 @@ def music_art(meta):
         item = current.get(rpath)
 
         if item is None:
-          print u'snag hit on artwork: {}\t({})'.format(art, current)
           continue
 
         path = os.path.join(meta.get('path'), meta.get('dirname'), album.get('dirname'), art)
