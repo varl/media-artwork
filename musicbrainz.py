@@ -84,7 +84,7 @@ def search_releasegroup(title, year, artistname, dirname=''):
     else:
       print u'The album artist does not match the directory artist:\t{}\t{}'\
           .format(album_artist, artistname)
-      print u'And the name does not match the title:\t{}\t{}'\
+      print u'And the name does not match the title:\t\t{}\t{}'\
           .format(name, title)
 
   return
