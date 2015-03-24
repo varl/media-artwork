@@ -4,6 +4,14 @@ media-artwork
 Integrates with Fanart.tv, OMDBAPI.com, Musicbrainz.org and TheTVDB.com to fetch
 artwork for media.
 
+Uses OMDBAPI for movies, with no backup, whereas for artists and albums a fair
+attempt in order to find out what album/artist is likely to be correct.
+
+Next version:
+- TheMovieDatabase.com as for backup to OMDBAPI.
+
+Artwork
+-------
 Artist: 
 - FanArt (fanart.jpg)
 - Extra fanart: extrafanart/(<image ID from provider.jpg>)
@@ -39,3 +47,4 @@ Movies:
 - Discart (disc.png)
 - Wide Banner Icons (banner.jpg)
 - Thumb 16:9 (landscape.jpg)
+
