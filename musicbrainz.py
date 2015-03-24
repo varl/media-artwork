@@ -21,7 +21,7 @@ def search_artist(artist, albums):
   data = dict(query='artist:'+artist.encode('utf-8'))
   req = urllib.urlencode(data)
   fullurl = artist_url +u'?'+ req
-  print fullurl
+  #print fullurl
   request = urllib2.Request(fullurl, headers={"User-Agent" : useragent})
   xml = urllib2.urlopen(request).read()
   root = ET.fromstring(xml)
@@ -48,7 +48,7 @@ def search_artist(artist, albums):
           break
 
   if candidate is None:
-    print u'No album matches.\tUsing first result for: {}'.format(artist)
+    print u'No album matches. Using first result for: {}'.format(artist)
     candidate = (root[0][0].get('id'), root[0][0][0].text)
 
   print candidate[0], '\t', candidate[1]
@@ -62,7 +62,7 @@ def search_releasegroup(title, year, artistname, dirname=''):
   data = dict(query=query)
   req = urllib.urlencode(data)
   fullurl = release_url +u'?'+ req
-  print fullurl
+  #print fullurl
   request = urllib2.Request(fullurl, headers={"User-Agent" : useragent})
   xml = urllib2.urlopen(request).read()
 
@@ -84,5 +84,7 @@ def search_releasegroup(title, year, artistname, dirname=''):
     else:
       print u'The album artist does not match the directory artist:\t{}\t{}'\
           .format(album_artist, artistname)
+      print u'And the name does not match the title:\t{}\t{}'\
+          .format(name, title)
 
   return

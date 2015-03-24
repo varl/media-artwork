@@ -61,7 +61,7 @@ def get(ident, category=''):
     fullurl = url + u'/' + category + u'/' + ident + u'?' + req
 
     try:
-        print fullurl
+        #print fullurl
         resp = urllib2.urlopen(fullurl)
     except urllib2.URLError, e:
         result['status'] = 'error'

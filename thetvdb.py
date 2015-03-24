@@ -13,9 +13,6 @@ api_key = u'ED0FD39C9529CF14'
 # GetSeries.php?seriesname=<seriesname>
 # GetSeriesByRemoteID.php?imdbid=<imdbid>
 
-mappings = {
-}
-
 def search(term):
     data = dict(seriesname=term)
     req = urllib.urlencode(data)
