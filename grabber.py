@@ -10,6 +10,7 @@ import unicodedata
 import omdbapi
 import fanarttv
 import thetvdb
+import musicbrainz
 
 from config import Config
 
@@ -27,12 +28,32 @@ def reconstruct_title(t):
     print u'Reconstructed title: {}'.format(result)
     return result
 
+def music_meta(path, dirname):
+  print
+
+  artist = musicbrainz.search_artist(dirname.encode('ascii', 'ignore'))
+
+  albums = []
+  dirnames = scan_media(os.path.join(path, dirname))
+  for album in dirnames:
+    pattern = re.compile(ur'(?P<title>^.*)\s\[(?P<year>\d{4})\]', re.U)
+    match = re.search(pattern, album)
+
+    if match is None:
+      continue
+
+    title = match.group('title')
+    year = match.group('year')
+
+    albums.append(musicbrainz.search_release(title, year))
+  
+  return dict(path=path, dirname=dirname, artist=artist, albums=albums)
+
 def movie_meta(path, dirname):
     print 
     """ Handles names in format '<Title> (<year>)' """
     pattern = re.compile(ur'(?P<title>^.*)\s\((?P<year>\d{4})\)', re.U)
     match = re.search(pattern, dirname)
-    match.groups()
 
     title = match.group('title')
     year = match.group('year')
@@ -51,6 +72,7 @@ def movie_meta(path, dirname):
             imdbid=movie.get('imdbID'))
 
 def tv_meta(path, dirname):
+    print
     """ This just assumes the folder is the title :> """
     pattern = re.compile(ur'^[^\(]+', re.U)
     match = re.search(pattern, dirname)
@@ -78,17 +100,21 @@ def tv_meta(path, dirname):
             imdbid=omdb_imdbid, tvdbid=tvdbid)
 
 def scan_music(path, target):
-    pass
+    meta = music_meta(path, target)
+    data = fanarttv.music_art(meta)
+    return download(data)
 
 def scan_movie(path, target):
-    meta = movie_meta(path, target)
-    data = fanarttv.movie_art(meta)
-    return download(data)
+    #meta = movie_meta(path, target)
+    #data = fanarttv.movie_art(meta)
+    #return download(data)
+    pass
 
 def scan_tv(path, target):
-    meta = tv_meta(path, target)
-    data = fanarttv.tv_art(meta)
-    return download(data)
+    #meta = tv_meta(path, target)
+    #data = fanarttv.tv_art(meta)
+    #return download(data)
+    pass
 
 def scan_media(target):
   print u'Scanning {}'.format(target)

@@ -24,19 +24,33 @@ movie_mappings = {
 }
 
 tv_mappings = {
-        'poster.jpg': 'tvposter', 
-        'season{}.jpg': 'seasonposter',
-        'fanart.jpg': 'showbackground', 
-        'clearart.png': 'hdclearart', #['hdclearart', 'clearart']
-        'character.png': 'characterart',
-        'logo.png': 'hdtvlogo',  #['hdtvlogo','clearlogo']
-        'banner.jpg': 'tvbanner', 
-        'landscape.jpg': 'tvthumb',
-        'season{}-landscape.jpg': 'seasonthumb',
-        'seasonall-landscape.jpg': 'tvthumb',
-        'seasonbanner{}.jpg': 'seasonbanner',
-        'extrafanart': 'showbackground',
-        'extrathumbs': 'tvthumb'
+    'poster.jpg': 'tvposter', 
+    'season{}.jpg': 'seasonposter',
+    'fanart.jpg': 'showbackground', 
+    'clearart.png': 'hdclearart', #['hdclearart', 'clearart']
+    'character.png': 'characterart',
+    'logo.png': 'hdtvlogo',  #['hdtvlogo','clearlogo']
+    'banner.jpg': 'tvbanner', 
+    'landscape.jpg': 'tvthumb',
+    'season{}-landscape.jpg': 'seasonthumb',
+    'seasonall-landscape.jpg': 'tvthumb',
+    'seasonbanner{}.jpg': 'seasonbanner',
+    'extrafanart': 'showbackground',
+    'extrathumbs': 'tvthumb'
+}
+
+artist_mappings = {
+    'logo.png':  'hdmusiclogo', #['hdmusiclogo', 'musiclogo']
+    'fanart.jpg': 'artistbackground',
+    'banner.jpg': 'musicbanner',
+    'folder.jpg': 'artistthumb',
+    'extrafanart': 'artistbackground',
+    'extrathumbs': 'artistthumb'
+}
+
+album_mappings = {
+    'folder.jpg': 'albumcover',
+    'cdart.png': 'cdart'
 }
 
 def get(ident, category=''):
@@ -90,7 +104,6 @@ def movie_art(meta):
             if not os.path.exists(path):
               os.makedirs(path)
             filename = item.get('url').split('/')[-1]
-            print filename
             queue.append((os.path.join(path, filename), item.get('url')))
 
           else:
@@ -133,9 +146,7 @@ def tv_art(meta):
         for item in fanart.get(rpath, []):
 
           if art.startswith('season') and not art.startswith('seasonall'):
-            print item.get('url'), item.get('season')
             season = os.path.join(meta.get('path'), meta.get('dirname'), art.format(item.get('season')))
-            print season
             queue.append((season, item.get('url')))
           elif art.startswith('extra'):
             path = os.path.join(meta.get('path'), meta.get('dirname'), art)
@@ -148,4 +159,20 @@ def tv_art(meta):
             queue.append((path, item.get('url')))
             break
 
+    return queue
+
+def music_art(meta):
+    queue = []
+
+    artist = meta.get('artist')
+    if (artist.get('mbid') is None):
+      print u'No id for meta: {}'.format(meta.get('dirname'))
+      return queue
+
+    fanart = get(artist.get('mbid'), category='music')
+
+    for album in meta.get('albums'):
+      print album
+      albumart = get(album.get('mbid'), category='music/albums')
+      print albumart
     return queue
