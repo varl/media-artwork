@@ -61,8 +61,10 @@ def get(ident, category=''):
     fullurl = url + u'/' + category + u'/' + ident + u'?' + req
 
     try:
+        print fullurl
         resp = urllib2.urlopen(fullurl)
     except urllib2.URLError, e:
+        result['status'] = 'error'
         return result
     else:
         result = resp.read()
@@ -191,11 +193,24 @@ def music_art(meta):
 
     for album in meta.get('albums'):
       albumart = get(album.get('mbid'), category='music/albums')
+
+      if albumart.get('status') is not None:
+        print u'Snag hit on album: {}\t({})'.format(album.get('dirname'), album.get('mbid'))
+        continue
+
       for art in album_artwork:
+        print u'\n'
         rpath = album_mappings.get(art)
-        item = albumart.get('albums').get(album.get('mbid')).get(rpath)[0]
+
+        albums = albumart.get('albums')
+        current = albums.get(album.get('mbid'))
+        item = current.get(rpath)
+
+        if item is None:
+          print u'snag hit on artwork: {}\t({})'.format(art, current)
+          continue
 
         path = os.path.join(meta.get('path'), meta.get('dirname'), album.get('dirname'), art)
-        queue.append((path, item.get('url')))
+        queue.append((path, item[0].get('url')))
 
     return queue

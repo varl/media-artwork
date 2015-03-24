@@ -31,8 +31,6 @@ def reconstruct_title(t):
 def music_meta(path, dirname):
   print
 
-  artist = musicbrainz.search_artist(dirname)
-
   albums = []
   dirnames = scan_media(os.path.join(path, dirname))
   for album in dirnames:
@@ -44,8 +42,13 @@ def music_meta(path, dirname):
 
     title = match.group('title')
     year = match.group('year')
+    
+    release_group = musicbrainz.search_releasegroup(title, year, dirname, album)
 
-    albums.append(musicbrainz.search_releasegroup(title, year, artist.get('mbid'), album))
+    if release_group is not None:
+      albums.append(release_group)
+
+  artist = musicbrainz.search_artist(dirname, albums)
   
   return dict(path=path, dirname=dirname, artist=artist, albums=albums)
 
@@ -85,15 +88,19 @@ def tv_meta(path, dirname):
     print u'Found series IMDB id: {}'.format(omdb_imdbid)
 
     tvdb_series = thetvdb.remote_id(omdb_imdbid)
-    print u'Got TVDB result: {}'.format(tvdb_series is not None)
+    print u'Got TVDB result: {}'.format(len(tvdb_series))
 
-    tvdb_imdbid = tvdb_series[0].find('IMDB_ID').text
-    tvdbid = tvdb_series[0].find('id').text
+    tvdb_imdbid = ''
+    tvdbid = ''
+
+    if len(tvdb_series) != 0:
+      tvdb_imdbid = tvdb_series[0].find('IMDB_ID').text
+      tvdbid = tvdb_series[0].find('id').text
 
     print u'Found series TVDB id: {}'.format(tvdbid)
 
     if tvdb_imdbid != omdb_imdbid:
-        print u'The imdb ids do not match: Name{}, OMDB: {}, TVDB {}'\
+      print u'The imdb ids do not match: Name: {}, OMDB: {}, TVDB: {}'\
                 .format(title, omdb_imdbid, tvdb_imdbid)
 
     return dict(path=path, dirname=dirname, title=dirname, \
@@ -105,16 +112,15 @@ def scan_music(path, target):
     return download(data)
 
 def scan_movie(path, target):
-    #meta = movie_meta(path, target)
-    #data = fanarttv.movie_art(meta)
-    #return download(data)
     pass
+    meta = movie_meta(path, target)
+    data = fanarttv.movie_art(meta)
+    return download(data)
 
 def scan_tv(path, target):
-    #meta = tv_meta(path, target)
-    #data = fanarttv.tv_art(meta)
-    #return download(data)
-    pass
+    meta = tv_meta(path, target)
+    data = fanarttv.tv_art(meta)
+    return download(data)
 
 def scan_media(target):
   print u'Scanning {}'.format(target)
