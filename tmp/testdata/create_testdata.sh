@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 MOVIES_DIR="movies"
 MUSIC_DIR="music"
