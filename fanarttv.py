@@ -144,9 +144,9 @@ def tv_art(meta):
     for art in artwork:
         rpath = tv_mappings.get(art)
         for item in fanart.get(rpath, []):
-
           if art.startswith('season') and not art.startswith('seasonall'):
-            season = os.path.join(meta.get('path'), meta.get('dirname'), art.format(item.get('season')))
+            season = os.path.join(meta.get('path'), meta.get('dirname'), \
+                art.format(item.get('season')))
             queue.append((season, item.get('url')))
           elif art.startswith('extra'):
             path = os.path.join(meta.get('path'), meta.get('dirname'), art)
@@ -162,6 +162,11 @@ def tv_art(meta):
     return queue
 
 def music_art(meta):
+    artist_artwork = ['logo.png', 'fanart.jpg', 'banner.jpg', 'folder.jpg',\
+        'extrafanart', 'extrathumbs']
+
+    album_artwork = ['folder.jpg', 'cdart.png']
+
     queue = []
 
     artist = meta.get('artist')
@@ -171,8 +176,26 @@ def music_art(meta):
 
     fanart = get(artist.get('mbid'), category='music')
 
+    for art in artist_artwork:
+        rpath = artist_mappings.get(art)
+        for item in fanart.get(rpath, []):
+          if art.startswith('extra'):
+            path = os.path.join(meta.get('path'), meta.get('dirname'), art)
+            if not os.path.exists(path):
+              os.makedirs(path)
+            filename = item.get('url').split('/')[-1]
+            queue.append((os.path.join(path, filename), item.get('url')))
+          else:
+            path = os.path.join(meta.get('path'), meta.get('dirname'), art)
+            queue.append((path, item.get('url')))
+
     for album in meta.get('albums'):
-      print album
       albumart = get(album.get('mbid'), category='music/albums')
-      print albumart
+      for art in album_artwork:
+        rpath = album_mappings.get(art)
+        item = albumart.get('albums').get(album.get('mbid')).get(rpath)[0]
+
+        path = os.path.join(meta.get('path'), meta.get('dirname'), album.get('dirname'), art)
+        queue.append((path, item.get('url')))
+
     return queue

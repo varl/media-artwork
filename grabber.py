@@ -31,7 +31,7 @@ def reconstruct_title(t):
 def music_meta(path, dirname):
   print
 
-  artist = musicbrainz.search_artist(dirname.encode('ascii', 'ignore'))
+  artist = musicbrainz.search_artist(dirname)
 
   albums = []
   dirnames = scan_media(os.path.join(path, dirname))
@@ -45,7 +45,7 @@ def music_meta(path, dirname):
     title = match.group('title')
     year = match.group('year')
 
-    albums.append(musicbrainz.search_release(title, year))
+    albums.append(musicbrainz.search_releasegroup(title, year, artist.get('mbid'), album))
   
   return dict(path=path, dirname=dirname, artist=artist, albums=albums)
 
