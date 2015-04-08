@@ -1,17 +1,30 @@
 media-artwork
 =============
 
-Integrates with Fanart.tv, OMDBAPI.com, Musicbrainz.org and TheTVDB.com to fetch
-artwork for media.
+## tl;dr
 
-Uses OMDBAPI for movies, with no backup, whereas for artists and albums a fair
-attempt in order to find out what album/artist is likely to be correct.
+A no frills artwork downloader without dependencies other than python 2.7.
 
-Next version:
-- TheMovieDatabase.com as for backup to OMDBAPI.
+## installation
 
-Artwork
--------
+```
+$ git clone git@github.com:varl/media-artwork.git
+$ cd media-artwork
+$ python2.7 ./grabber.py 2>&1 > ~/media-artwork.log
+```
+
+# media archive structure
+
+The program attempts to use as much meta-data from the directory structure as
+is possible. Provided in the `tmp/testdata` directory you can find examples on
+the structure used. A summary is as follows:
+
+* Movies: `Title (Year)`
+* TV Series: `Title/SeasonX`
+* Music: `Artist/Album [Year]`
+
+# what does it download?
+
 Artist: 
 - FanArt (fanart.jpg)
 - Extra fanart: extrafanart/(<image ID from provider.jpg>)
