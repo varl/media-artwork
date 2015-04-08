@@ -9,7 +9,6 @@ import musicbrainz
 
 def music_meta(path, dirname):
   print
-
   albums = []
   dirnames = scan_media(os.path.join(path, dirname))
   for album in dirnames:

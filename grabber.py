@@ -36,13 +36,13 @@ def scan_tv(path):
   return data
 
 def download(data):
-    for local, remote in data:
-      if os.path.exists(local):
-        print u'Local file exists ({}), skipping...'.format(local)
-      else:
-        print u'Downloading\t{}'.format(remote)
-        filename, headers = urllib.urlretrieve(remote, local)
-        print u'Downloaded\t{}'.format(filename)
+  for local, remote in data:
+    if os.path.exists(local):
+      print u'Local file exists ({}), skipping...'.format(local)
+    else:
+      print u'Downloading\t{}'.format(remote)
+      filename, headers = urllib.urlretrieve(remote, local)
+      print u'Downloaded\t{}'.format(filename)
   
 
 if __name__ == "__main__":
@@ -61,5 +61,4 @@ if __name__ == "__main__":
     else:
       data.extend(scan_movie(path))
 
-  print data
   download(data)
