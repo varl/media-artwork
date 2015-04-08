@@ -8,33 +8,32 @@ import urllib
 
 import fanarttv
 
-from meta import music_meta, movie_meta, tv_meta
+from meta import music_meta, movie_meta, tv_meta, scan_media
 from config import Config
 
-def scan_music(path, target):
-    meta = music_meta(path, target)
+def scan_music(path):
+  data = []
+  dirs = scan_media(path)
+  for d in dirs:
+    meta = music_meta(path, d)
     data = fanarttv.music_art(meta)
-    return download(data)
+  return data
 
-def scan_movie(path, target):
-    pass
-    meta = movie_meta(path, target)
-    data = fanarttv.movie_art(meta)
-    return download(data)
+def scan_movie(path):
+  data = []
+  dirs = scan_media(path)
+  for d in dirs:
+    meta = movie_meta(path, d)
+    data.extend(fanarttv.movie_art(meta))
+  return data
 
-def scan_tv(path, target):
-    meta = tv_meta(path, target)
+def scan_tv(path):
+  data = []
+  dirs = scan_media(path)
+  for d in dirs:
+    meta = tv_meta(path, d)
     data = fanarttv.tv_art(meta)
-    return download(data)
-
-def scan_media(target):
-  if not os.path.isdir(target):
-    print u'Path does not exist, skipping {}'.format(target)
-    return []
-
-  print u'Scanning {}'.format(target)
-  dirlist = [d for d in os.listdir(target) if os.path.isdir(os.path.join(target, d))]
-  return dirlist
+  return data
 
 def download(data):
     for local, remote in data:
@@ -47,22 +46,20 @@ def download(data):
   
 
 if __name__ == "__main__":
-    UTF8Writer = codecs.getwriter('utf8')
-    sys.stdout = UTF8Writer(sys.stdout)
+  UTF8Writer = codecs.getwriter('utf8')
+  sys.stdout = UTF8Writer(sys.stdout)
 
-    cfg = Config()
-    paths = cfg.paths
+  cfg = Config()
+  paths = cfg.paths
 
-    for category in cfg.categories:
-        dirs = scan_media(paths.get(category))
+  data = []
+  for category, path in paths.iteritems():
+    if category == "music":
+      data.extend(scan_music(path))
+    elif category == "tv":
+      data.extend(scan_tv(path))
+    else:
+      data.extend(scan_movie(path))
 
-        if category == "music":
-            populate = scan_music
-        elif category == "tv":
-            populate = scan_tv
-        else:
-            populate = scan_movie
-
-        for d in dirs:
-            populate(paths.get(category), d)
-
+  print data
+  download(data)

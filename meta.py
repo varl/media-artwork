@@ -99,3 +99,12 @@ def reconstruct_title(t):
     print u'Reconstructed title: {}'.format(result)
     return result
 
+def scan_media(target):
+  if not os.path.isdir(target):
+    print u'Path does not exist, skipping {}'.format(target)
+    return []
+
+  print u'Scanning {}'.format(target)
+  dirlist = [d for d in os.listdir(target) if os.path.isdir(os.path.join(target, d))]
+  return dirlist
+
