@@ -62,7 +62,7 @@ def movie_meta(path, dirname):
     year = match.group('year')
     
     new_title = reconstruct_title(title)
-    movie = omdbapi.search(title=new_title, type='movie')
+    movie = omdbapi.search(title=new_title, year=year, type='movie')
 
     if movie.get('Response') == u'False':
       print 'Retrying without unicode chars ({})'.format(new_title.encode('ascii', 'ignore'))
@@ -123,6 +123,10 @@ def scan_tv(path, target):
     return download(data)
 
 def scan_media(target):
+  if not os.path.isdir(target):
+    print u'Path does not exist, skipping {}'.format(target)
+    return []
+
   print u'Scanning {}'.format(target)
   dirlist = [d for d in os.listdir(target) if os.path.isdir(os.path.join(target, d))]
   return dirlist
